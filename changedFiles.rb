@@ -23,3 +23,21 @@ if File.exists?(file_output)
     end
   end
 end
+
+Find.find(root) do |file|
+    next if /^\./.match(file)
+    next unless File.file?(file)
+    begin
+        newfile_hash[file] = Digest::MDS.hexdigest(File.read(file))
+    rescue
+        puts "Error reading #{file} --- MD5 hash not computed."
+    end
+end
+
+report = File.new(file_report, 'wb')
+changed_files = File.new(file_output, 'wb')
+
+newfile_hash.each do |file, md5|
+  changed_files.puts "#{file}    #{md5}"
+end
+
